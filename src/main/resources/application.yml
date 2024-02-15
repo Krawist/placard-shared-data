@@ -1,0 +1,25 @@
+#Fri Jan 26 12:51:22 UTC 2024
+micronaut:
+  application:
+    name: SharedObjectsService
+  security:
+    authentication: bearer
+    token:
+      jwt:
+        signatures:
+          secret:
+            generator:
+              secret: '"${JWT_GENERATOR_SIGNATURE_SECRET:pleaseChangeThisSecretForANewOne}"'
+datasources:
+  default:
+    db-type: postgres
+    dialect: POSTGRES
+    url: jdbc:postgresql://localhost:5432/Placard?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
+    username: Placard
+    password: PlacardPassword
+    driver-class-name: org.postgresql.Driver
+jpa:
+  default:
+    properties:
+      hibernate:
+        hbm2ddl.auto: update
