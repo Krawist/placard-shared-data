@@ -3,6 +3,7 @@ package org.placard.repositories
 import io.micronaut.data.annotation.Repository
 import io.micronaut.data.repository.PageableRepository
 import org.placard.models.user.AbstractUser
+import java.util.UUID
 
 @Repository
-internal interface AbstractUserRepository : PageableRepository<AbstractUser, String>
+internal interface AbstractUserRepository : PageableRepository<AbstractUser, UUID>

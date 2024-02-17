@@ -9,6 +9,7 @@ import java.util.UUID
 
 @Repository
 internal interface UserGroupMemberShipRepository : PageableRepository<UserGroupMemberShip, UserGroupMemberShipKey> {
+
     fun findByUserGroupMemberShipKeyUserUuidAndStatus(userUuid: UUID, status: UserGroupMemberShipStatus): List<UserGroupMemberShip>
 
 }

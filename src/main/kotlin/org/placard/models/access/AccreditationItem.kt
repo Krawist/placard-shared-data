@@ -7,8 +7,8 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
-import org.placard.config.AccreditationItemTypeOfAccess
 import org.placard.models.hierarchy.HierarchyItem
+import java.util.UUID
 
 @Introspected
 @Serdeable
@@ -16,7 +16,7 @@ import org.placard.models.hierarchy.HierarchyItem
 internal data class AccreditationItem(
 
     @Id
-    val identifier : String,
+    val uuid : UUID,
 
     @ManyToOne
     val hierarchyItem : HierarchyItem,

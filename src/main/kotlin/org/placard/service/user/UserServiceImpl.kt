@@ -21,7 +21,7 @@ internal class UserServiceImpl(
             lastName = userCreationRequest.lastName,
             emailAddress = userCreationRequest.emailAddress
         ).also {
-            it.identifier = UUID.randomUUID().toString()
+            it.uuid = UUID.randomUUID()
         }
 
         userRepository.save(user)

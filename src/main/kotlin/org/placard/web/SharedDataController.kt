@@ -1,6 +1,5 @@
 package org.placard.web
 
-import io.micronaut.data.model.Page
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller

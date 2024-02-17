@@ -25,13 +25,13 @@ internal class UserGroupServiceImpl(
         require(userGroupCreationRequest.displayName.isNotBlank()) {"The group name cannot be blank"}
 
         val userGroup = UserGroup(displayName = userGroupCreationRequest.displayName).also {
-            it.identifier = UUID.randomUUID().toString()
+            it.uuid = UUID.randomUUID()
         }
 
         userGroupRepository.save(userGroup)
 
         if(userGroupCreationRequest.users.isNotEmpty()){
-            addUsers(usersIdentifier = userGroupCreationRequest.users, userGroupIdentifier = userGroup.identifier)
+            addUsers(usersUuid = userGroupCreationRequest.users, userGroupUuid = userGroup.uuid!!)
         }
 
         return HttpResponse.created(userGroup)
@@ -41,8 +41,8 @@ internal class UserGroupServiceImpl(
         return HttpResponse.ok(userGroupRepository.findAll(Pageable.unpaged()))
     }
 
-    override fun addUsers(usersIdentifier: List<String>, userGroupIdentifier: String): HttpResponse<UserGroup> {
-        val userGroupMemberships = buildUserGroupMemberShip(userGroupIdentifier = userGroupIdentifier, usersIdentifier = usersIdentifier)
+    override fun addUsers(usersUuid: List<UUID>, userGroupUuid: UUID): HttpResponse<UserGroup> {
+        val userGroupMemberships = buildUserGroupMemberShip(userGroupUuid = userGroupUuid, usersUuid = usersUuid)
 
         userGroupMemberships.forEach { userGroupMembership ->
             userGroupMemberShipRepository.findById(userGroupMembership.userGroupMemberShipKey).ifPresent {
@@ -55,8 +55,8 @@ internal class UserGroupServiceImpl(
         return HttpResponse.ok()
     }
 
-    override fun removeUsers(usersIdentifier: List<String>, userGroupIdentifier: String): HttpResponse<UserGroup> {
-        val userGroupMemberships = buildUserGroupMemberShip(usersIdentifier = usersIdentifier, userGroupIdentifier = userGroupIdentifier)
+    override fun removeUsers(usersUuid: List<UUID>, userGroupUuid: UUID): HttpResponse<UserGroup> {
+        val userGroupMemberships = buildUserGroupMemberShip(usersUuid = usersUuid, userGroupUuid = userGroupUuid)
 
         userGroupMemberships.forEach { userGroupMembership ->
             userGroupMemberShipRepository.findById(userGroupMembership.userGroupMemberShipKey).orElseThrow {
@@ -69,12 +69,12 @@ internal class UserGroupServiceImpl(
         return HttpResponse.ok()
     }
 
-    private fun buildUserGroupMemberShip(usersIdentifier: List<String>, userGroupIdentifier: String) : List<UserGroupMemberShip>{
-        val userGroup = userGroupRepository.findById(userGroupIdentifier).orElseThrow {
-            IllegalArgumentException("Invalid group provided. Group with id $userGroupIdentifier not found.")
+    private fun buildUserGroupMemberShip(usersUuid: List<UUID>, userGroupUuid: UUID) : List<UserGroupMemberShip>{
+        val userGroup = userGroupRepository.findById(userGroupUuid).orElseThrow {
+            IllegalArgumentException("Invalid group provided. Group with id $userGroupUuid not found.")
         }
 
-        val users = usersIdentifier.map {
+        val users = usersUuid.map {
             userRepository.findById(it).orElseThrow {
                 IllegalArgumentException("Invalid user provided. User with id $it not found")
             }
@@ -82,7 +82,7 @@ internal class UserGroupServiceImpl(
 
         return users.map {
             UserGroupMemberShip(
-                userGroupMemberShipKey = UserGroupMemberShipKey(userUuid = UUID.fromString(it.identifier), userGroupUuid = UUID.fromString(userGroup.identifier)),
+                userGroupMemberShipKey = UserGroupMemberShipKey(userUuid = it.uuid!!, userGroupUuid = userGroup.uuid!!),
             )
         }
     }

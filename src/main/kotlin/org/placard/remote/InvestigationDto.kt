@@ -2,14 +2,12 @@ package org.placard.remote
 
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.serde.annotation.Serdeable
-import org.placard.models.data.SharableDataAccessMode
 import java.util.UUID
 
 @Introspected
 @Serdeable
-internal data class DataToUpload(
+data class InvestigationDto(
+    val uuid: UUID? = null,
     val displayName : String,
-    val accessMode : SharableDataAccessMode,
-    val projectIdentifier: UUID,
-    val uploadBy : UUID
+    val projectUuid : UUID
 )

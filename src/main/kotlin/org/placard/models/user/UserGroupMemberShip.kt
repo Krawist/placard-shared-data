@@ -1,7 +1,6 @@
 package org.placard.models.user
 
 import io.micronaut.data.annotation.DateCreated
-import io.micronaut.data.annotation.DateUpdated
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
@@ -17,28 +16,24 @@ internal data class UserGroupMemberShip(
     @EmbeddedId
     val userGroupMemberShipKey: UserGroupMemberShipKey,
 
-    @DateCreated
-    val addedOn : Instant? = null,
-
-    @DateUpdated
-    val lastUpdateAt : Instant? = null,
-
-    @ManyToOne
-    val addedBy : User? = null,
-
-    @ManyToOne
-    val lastUpdateBy : User? = null,
-
     @Enumerated(value = EnumType.STRING)
-    val status : UserGroupMemberShipStatus = UserGroupMemberShipStatus.ACTIVE
+    val status: UserGroupMemberShipStatus = UserGroupMemberShipStatus.ACTIVE,
+
+    @DateCreated
+    val addedAt: Instant? = null,
+
+    @DateCreated
+    val lastUpdateAt: Instant? = null,
+
+    @ManyToOne
+    val lastUpdatedBy: User? = null,
+
+    @ManyToOne
+    val addedBy: User? = null,
 )
 
 @Embeddable
 internal data class UserGroupMemberShipKey(
     val userGroupUuid: UUID,
-    val userUuid: UUID
+    val userUuid: UUID,
 ) : Serializable
-
-internal enum class UserGroupMemberShipStatus {
-    ACTIVE, DISABLED, REMOVED
-}

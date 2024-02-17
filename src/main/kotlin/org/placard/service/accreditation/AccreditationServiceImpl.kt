@@ -24,7 +24,7 @@ internal class AccreditationServiceImpl(
     private val abstractUserRepository: AbstractUserRepository,
     private val sharableDataRepository: SharableDataRepository
 ) : AccreditationService {
-    override fun addAccreditationsToUser(abstractUserUuid : String, accreditations: List<AccreditationCreationRequest>) : HttpResponse<List<Accreditation>>{
+    override fun addAccreditationsToUser(abstractUserUuid : UUID, accreditations: List<AccreditationCreationRequest>) : HttpResponse<List<Accreditation>>{
 
         //We save the new ones
         val createdAccreditations = accreditations.map { accreditationCreationRequest ->
@@ -39,12 +39,15 @@ internal class AccreditationServiceImpl(
             }
 
             val accreditation = Accreditation(
-                identifier = UUID.randomUUID().toString(),
                 level = accreditationCreationRequest.level,
                 project = project,
                 abstractUser = abstractUser,
                 accreditationStatus = AccreditationStatus.ACTIVE,
-            )
+            ).also {
+                it.uuid = UUID.randomUUID()
+            }
+
+
             accreditationRepository.save(accreditation)
 
             saveAccreditationItems(
@@ -52,13 +55,13 @@ internal class AccreditationServiceImpl(
                 accreditationItemsCreationRequest = accreditationCreationRequest.items
             )
 
-            accreditationRepository.findById(accreditation.identifier).get()
+            accreditationRepository.findById(accreditation.uuid).get()
         }
 
         return HttpResponse.created(createdAccreditations)
     }
 
-    override fun addAccreditationsToData(sharableDataUuid : String, accreditations: List<AccreditationCreationRequest>) : HttpResponse<List<Accreditation>> {
+    override fun addAccreditationsToData(sharableDataUuid : UUID, accreditations: List<AccreditationCreationRequest>) : HttpResponse<List<Accreditation>> {
 
         //We save the new ones
         val createdAccreditations = accreditations.map { accreditationCreationRequest ->
@@ -70,11 +73,12 @@ internal class AccreditationServiceImpl(
             }
 
             val accreditation = Accreditation(
-                identifier = UUID.randomUUID().toString(),
                 level = accreditationCreationRequest.level,
                 sharableData = sharableData,
                 accreditationStatus = AccreditationStatus.ACTIVE
-            )
+            ).also {
+                it.uuid = UUID.randomUUID()
+            }
             accreditationRepository.save(accreditation)
 
             saveAccreditationItems(
@@ -82,13 +86,13 @@ internal class AccreditationServiceImpl(
                 accreditationItemsCreationRequest = accreditationCreationRequest.items
             )
 
-            accreditationRepository.findById(accreditation.identifier).get()
+            accreditationRepository.findById(accreditation.uuid).get()
         }
 
         return HttpResponse.created(createdAccreditations)
     }
 
-    override fun removeAccreditations(accreditations: List<String>) : HttpResponse<Nothing> {
+    override fun removeAccreditations(accreditations: List<UUID>) : HttpResponse<Nothing> {
         accreditations.forEach {
             accreditationRepository.deleteById(it)
         }
@@ -102,7 +106,7 @@ internal class AccreditationServiceImpl(
         val accreditationItems = accreditationItemsCreationRequest.map { accreditationItemCreationRequest ->
             val hierarchyItem = hierarchyItemRepository.findById(accreditationItemCreationRequest.accreditedItem).get()
             AccreditationItem(
-                identifier = UUID.randomUUID().toString(),
+                uuid = UUID.randomUUID(),
                 hierarchyItem = hierarchyItem,
                 accreditation = accreditation,
                 typeOfAccess = accreditationItemCreationRequest.typeOfAccess
@@ -119,8 +123,8 @@ internal class AccreditationServiceImpl(
             hierarchyItemRepository.findById(it.accreditedItem).orElseThrow {
                 IllegalArgumentException("Hierarchy item with id '${it.accreditedItem}' not found")
             }.let { hierarchyItem ->
-                if(hierarchyItem.level != accreditationCreationRequest.level){
-                    throw IllegalArgumentException("Hierarchy item ${hierarchyItem.identifier} is not of level ${accreditationCreationRequest.level}")
+                require(hierarchyItem.level != accreditationCreationRequest.level) {
+                    "Hierarchy item ${hierarchyItem.uuid} is not of level ${accreditationCreationRequest.level}"
                 }
             }
         }

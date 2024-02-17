@@ -8,6 +8,7 @@ import io.micronaut.http.annotation.Post
 import org.placard.models.access.Accreditation
 import org.placard.remote.AccreditationCreationRequest
 import org.placard.service.accreditation.AccreditationService
+import java.util.UUID
 
 @Controller("accreditations")
 internal class AccreditationController(
@@ -16,7 +17,7 @@ internal class AccreditationController(
 
     @Post("/abstract-user/{abstractUserUuid}")
     fun addAccreditationToUser(
-        @PathVariable("abstractUserUuid") abstractUserUuid: String,
+        @PathVariable("abstractUserUuid") abstractUserUuid: UUID,
         @Body accreditations: List<AccreditationCreationRequest>,
     ) : HttpResponse<List<Accreditation>> {
         return accreditationService.addAccreditationsToUser(
@@ -27,11 +28,11 @@ internal class AccreditationController(
 
     @Post("/sharable-data/{dataIdentifier}")
     fun addAccreditationToData(
-        @PathVariable("dataIdentifier") dataIdentifier: String,
+        @PathVariable("dataIdentifier") dataUuid: UUID,
         @Body accreditations: List<AccreditationCreationRequest>,
     ) : HttpResponse<List<Accreditation>> {
         return accreditationService.addAccreditationsToData(
-            sharableDataUuid = dataIdentifier,
+            sharableDataUuid = dataUuid,
             accreditations = accreditations
         )
     }

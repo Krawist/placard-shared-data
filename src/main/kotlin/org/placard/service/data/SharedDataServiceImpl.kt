@@ -2,7 +2,7 @@ package org.placard.service.data
 
 import io.micronaut.http.HttpResponse
 import jakarta.inject.Singleton
-import org.placard.config.AccreditationItemTypeOfAccess
+import org.placard.models.access.AccreditationItemTypeOfAccess
 import org.placard.models.access.Accreditation
 import org.placard.models.data.SharableData
 import org.placard.models.hierarchy.HierarchyItem
@@ -34,8 +34,6 @@ internal class SharedDataServiceImpl(
     override fun uploadData(dataToUpload: DataToUpload): HttpResponse<SharableData> {
 
         require(dataToUpload.displayName.isNotBlank()) { "display name cannot be blank" }
-        require(dataToUpload.uploadBy.isNotBlank()) { "Please provide the uploader ID" }
-        require(dataToUpload.projectIdentifier.isNotBlank()) { "Please provide the project of this data" }
 
         val creator = userRepository.findById(dataToUpload.uploadBy).orElseThrow {
             IllegalArgumentException("Provided creator don't exist")
@@ -46,13 +44,13 @@ internal class SharedDataServiceImpl(
         }
 
         val shareData = SharableData(
-            uploadedBy = creator,
             fileSystemPath = "To be proceed",
             displayName = dataToUpload.displayName,
             accessMode = dataToUpload.accessMode,
             project = project
         ).also {
-            it.identifier = UUID.randomUUID().toString()
+            it.uuid = UUID.randomUUID()
+            it.createdBy = creator
         }
 
         sharableDataRepository.save(shareData)
@@ -75,14 +73,14 @@ internal class SharedDataServiceImpl(
 
     private fun getUserAccreditations(userUUID: UUID): List<Accreditation> {
         //TODO find a way to this with one database request
-        val user = userRepository.findById(userUUID.toString()).orElseThrow {
+        val user = userRepository.findById(userUUID).orElseThrow {
             IllegalArgumentException("User with uuid $userUUID not found")
         }
         val userGroups = userGroupMemberShipRepository.findByUserGroupMemberShipKeyUserUuidAndStatus(
             userUuid = userUUID,
             status = UserGroupMemberShipStatus.ACTIVE
         ).mapNotNull {
-            userGroupRepository.findById(it.userGroupMemberShipKey.userGroupUuid.toString()).orElse(null)
+            userGroupRepository.findById(it.userGroupMemberShipKey.userGroupUuid).orElse(null)
         }
 
         return accreditationRepository.findByAbstractUserInList(userGroups.toMutableList().plus(user))

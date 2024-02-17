@@ -9,7 +9,6 @@ import jakarta.persistence.Entity
 @Serdeable
 @Entity(name = "users_group")
 internal data class UserGroup(
-
     @Column(name = "group_name")
     val displayName: String = ""
 ) : AbstractUser()

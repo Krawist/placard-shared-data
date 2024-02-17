@@ -10,6 +10,7 @@ import io.micronaut.http.annotation.Post
 import org.placard.models.user.UserGroup
 import org.placard.remote.UserGroupCreationRequest
 import org.placard.service.user.UserGroupService
+import java.util.UUID
 
 @Controller("user-groups")
 internal class UserGroupController(
@@ -26,20 +27,20 @@ internal class UserGroupController(
         return userGroupService.search()
     }
 
-    @Post("{user_group_identifier}/add-users")
+    @Post("{userGroupIdentifier}/add-users")
     fun addUsers(
-        @PathVariable("user_group_identifier") userGroupIdentifier : String,
-        @Body users : List<String>
+        @PathVariable("userGroupIdentifier") userGroupUuid : UUID,
+        @Body usersUuid : List<UUID>
     ) : HttpResponse<UserGroup>{
-        return userGroupService.addUsers(userGroupIdentifier = userGroupIdentifier, usersIdentifier = users)
+        return userGroupService.addUsers(userGroupUuid = userGroupUuid, usersUuid = usersUuid)
     }
 
-    @Post("{user_group_identifier}/remove-users")
+    @Post("{userGroupIdentifier}/remove-users")
     fun removeUsers(
-        @PathVariable("user_group_identifier") userGroupIdentifier : String,
-        @Body users : List<String>
+        @PathVariable("userGroupIdentifier") userGroupUuid : UUID,
+        @Body usersUuid : List<UUID>
     ) : HttpResponse<UserGroup>{
-        return userGroupService.removeUsers(userGroupIdentifier = userGroupIdentifier, usersIdentifier = users)
+        return userGroupService.removeUsers(userGroupUuid = userGroupUuid, usersUuid = usersUuid)
     }
 
 }

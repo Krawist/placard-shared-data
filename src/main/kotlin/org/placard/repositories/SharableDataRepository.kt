@@ -7,9 +7,10 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.PageableRepository
 import org.placard.models.data.SharableData
 import org.placard.models.hierarchy.HierarchyItem
+import java.util.UUID
 
 @Repository
-internal interface SharableDataRepository : PageableRepository<SharableData, String> {
+internal interface SharableDataRepository : PageableRepository<SharableData, UUID> {
 
     @Query(value = "SELECT data FROM " +
             "sharable_data data, accreditations accrediation, accreditation_items accreditationItem, hierarchy_items hierarchyItem " +

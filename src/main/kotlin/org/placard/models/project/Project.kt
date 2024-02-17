@@ -6,22 +6,20 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
+import org.placard.models.Auditable
 import org.placard.models.hierarchy.Hierarchy
+import java.util.UUID
 
 @Introspected
 @Serdeable
 @Entity(name = "projects")
 internal data class Project(
-
-    @Id
-    val identifier : String? = null,
-
     @Column(name = "name")
-    val name : String? = null,
+    val displayName : String,
 
     @ManyToOne
-    val hierarchy: Hierarchy? = null,
+    val hierarchy: Hierarchy,
 
     @ManyToOne
-    val parent : Project? = null
-)
+    val parentProject : Project? = null
+) : Auditable()

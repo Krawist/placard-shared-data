@@ -4,6 +4,7 @@ import io.micronaut.data.model.Page
 import io.micronaut.http.HttpResponse
 import org.placard.models.user.UserGroup
 import org.placard.remote.UserGroupCreationRequest
+import java.util.UUID
 
 internal interface UserGroupService {
 
@@ -11,8 +12,8 @@ internal interface UserGroupService {
 
     fun search() : HttpResponse<Page<UserGroup>>
 
-    fun addUsers(usersIdentifier : List<String>, userGroupIdentifier : String) : HttpResponse<UserGroup>
+    fun addUsers(usersUuid : List<UUID>, userGroupUuid : UUID) : HttpResponse<UserGroup>
 
-    fun removeUsers(usersIdentifier : List<String>, userGroupIdentifier: String) : HttpResponse<UserGroup>
+    fun removeUsers(usersUuid : List<UUID>, userGroupUuid: UUID) : HttpResponse<UserGroup>
 
 }

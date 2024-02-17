@@ -17,7 +17,6 @@ internal class HierarchyItemServiceImpl(
 ) : HierarchyItemService{
 
     override fun create(hierarchyItemCreationRequest: HierarchyItemCreationRequest): HttpResponse<HierarchyItem> {
-        require(hierarchyItemCreationRequest.hierarchyIdentifier.isNotBlank()) { "Please provide the hierarchy item" }
         require(hierarchyItemCreationRequest.level > 0) { "Please provide a valid hierarchy item level" }
         require(hierarchyItemCreationRequest.displayName.isNotBlank()) { "Please the hierarchy item name" }
 
@@ -32,12 +31,13 @@ internal class HierarchyItemServiceImpl(
         }
 
         val hierarchyItem = HierarchyItem(
-            identifier = UUID.randomUUID().toString(),
             level = hierarchyItemCreationRequest.level,
-            name = hierarchyItemCreationRequest.displayName,
+            displayName = hierarchyItemCreationRequest.displayName,
             hierarchy = hierarchy,
             parent = parent
-        )
+        ).also {
+            it.uuid = UUID.randomUUID()
+        }
 
         hierarchyItemRepository.save(hierarchyItem)
 
