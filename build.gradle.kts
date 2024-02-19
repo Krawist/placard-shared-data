@@ -23,6 +23,12 @@ dependencies {
     implementation("io.micronaut.validation:micronaut-validation")
     ksp("io.micronaut.validation:micronaut-validation-processor")
 
+    //MongoDB
+    ksp("io.micronaut.data:micronaut-data-document-processor")
+    implementation("io.micronaut.data:micronaut-data-mongodb")
+    implementation("io.micronaut.serde:micronaut-serde-bson")
+    runtimeOnly("org.mongodb:mongodb-driver-sync")
+
 
     // Kotlin Symbol Processing (KSP) Dependencies
     ksp("io.micronaut.data:micronaut-data-processor") // Micronaut Data Processor for Kotlin Symbol Processing

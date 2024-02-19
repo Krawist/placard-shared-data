@@ -63,12 +63,14 @@ internal class SharedDataServiceImpl(
         val accreditationItems = getAccreditationsHierarchyItems(requesterAccreditations)
         val accreditationsLabels = accreditationItems.map { it.level }.distinct()
 
-        return HttpResponse.ok(
+        return HttpResponse.ok(sharableDataRepository.findAll())
+
+/*        return HttpResponse.ok(
             sharableDataRepository.getSharableDataByUserAccreditationLevelsAndItems(
                 accreditationsLevels = accreditationsLabels,
                 accreditationItems = accreditationItems
             )
-        )
+        )*/
     }
 
     private fun getUserAccreditations(userUUID: UUID): List<Accreditation> {

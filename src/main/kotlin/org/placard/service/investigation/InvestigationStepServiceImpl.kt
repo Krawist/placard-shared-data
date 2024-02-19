@@ -9,7 +9,6 @@ import org.placard.models.investigation.InvestigationStep
 import org.placard.remote.InvestigationStepDto
 import org.placard.repositories.InvestigationRepository
 import org.placard.repositories.InvestigationStepRepository
-import org.placard.repositories.ProjectRepository
 import java.util.UUID
 
 @Singleton
