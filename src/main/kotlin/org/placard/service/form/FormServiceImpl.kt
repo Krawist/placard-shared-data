@@ -5,6 +5,7 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.http.HttpResponse
 import jakarta.inject.Singleton
 import org.placard.models.form.Form
+import org.placard.models.form.FormEventType
 import org.placard.remote.FormDto
 import org.placard.repositories.FormRepository
 import org.placard.repositories.InvestigationStepRepository
@@ -15,7 +16,7 @@ import java.util.UUID
 internal class FormServiceImpl(
     private val formRepository: FormRepository,
     private val projectRepository: ProjectRepository,
-    private val investigationStepRepository: InvestigationStepRepository
+    private val investigationStepRepository: InvestigationStepRepository,
 ) : FormService {
 
     override fun create(formDto: FormDto): HttpResponse<Form> {
@@ -25,14 +26,15 @@ internal class FormServiceImpl(
             projectRepository.findById(formDto.projectUuid).get()
         }
 
-        val investigationStep = formDto.investigationStepUUID?.let {
-            investigationStepRepository.findById(formDto.investigationStepUUID).get()
+        val investigationStep = formDto.investigationStepUuid?.let {
+            investigationStepRepository.findById(formDto.investigationStepUuid).get()
         }
 
         val form = Form(
             displayName = formDto.displayName,
             project = project,
-            investigationStep = investigationStep
+            investigationStep = investigationStep,
+            eventType = formDto.eventType
         ).also {
             it.uuid = UUID.randomUUID()
         }
@@ -50,8 +52,8 @@ internal class FormServiceImpl(
             projectRepository.findById(formDto.projectUuid).get()
         }
 
-        val investigationStep = formDto.investigationStepUUID?.let {
-            investigationStepRepository.findById(formDto.investigationStepUUID).get()
+        val investigationStep = formDto.investigationStepUuid?.let {
+            investigationStepRepository.findById(formDto.investigationStepUuid).get()
         }
 
         val form = formRepository.findById(formDto.uuid).orElseThrow {
@@ -72,33 +74,46 @@ internal class FormServiceImpl(
         return HttpResponse.ok(formRepository.findAll(Pageable.unpaged()))
     }
 
-    private fun validateFields(formDto: FormDto){
+    private fun validateFields(formDto: FormDto) {
 
-        require(formDto.displayName.isNotBlank()) {"Form name cannot be blank"}
+        require(formDto.displayName.isNotBlank()) { "Form name cannot be blank" }
 
-        require(!(formDto.projectUuid != null && formDto.investigationStepUUID != null)) {"The form should be attached to a project or an investigation step"}
+        when(formDto.eventType){
 
-        formDto.projectUuid?.let { projectUuid ->
-            require(projectRepository.existsById(projectUuid)) {"Project with uuid $projectUuid not found"}
+            FormEventType.CAPTURE_EVENT -> {
+                requireNotNull(formDto.projectUuid) {"For one-time event the project uuid is required"}
 
-            formRepository.findByDisplayNameIgnoreCaseAndProject_Uuid(displayName = formDto.displayName, projectUUID = projectUuid).ifPresent { form ->
-                formDto.uuid?.let {
-                    require(form.uuid == it)
+                require(formDto.investigationStepUuid == null) {"For one-time event the investigation step should not be provided"}
+
+                require(projectRepository.existsById(formDto.projectUuid)) { "Project with uuid ${formDto.projectUuid} not found" }
+
+                formRepository.findByDisplayNameIgnoreCaseAndProject_Uuid(
+                    displayName = formDto.displayName,
+                    projectUUID = formDto.projectUuid
+                ).ifPresent { form ->
+                    formDto.uuid?.let {
+                        require(form.uuid == it)
+                    }
+                }
+            }
+
+            FormEventType.TRACKING_EVENT -> {
+                requireNotNull(formDto.investigationStepUuid) {"For tracking event, the investigation step uuid is required"}
+
+                require(formDto.projectUuid == null) {"For tracking event the project should not be provided"}
+
+                require(investigationStepRepository.existsById(formDto.investigationStepUuid)) { "Step with uuid ${formDto.investigationStepUuid} not found" }
+
+                formRepository.findByDisplayNameIgnoreCaseAndInvestigationStep_Uuid(
+                    displayName = formDto.displayName,
+                    investigationStepUuid = formDto.investigationStepUuid
+                ).ifPresent { form ->
+                    formDto.uuid?.let {
+                        require(form.uuid == it)
+                    }
                 }
             }
         }
-
-        formDto.investigationStepUUID?.let { investigationStepUuid ->
-            require(investigationStepRepository.existsById(investigationStepUuid)) {"Step with uuid $investigationStepUuid not found"}
-
-            formRepository.findByDisplayNameIgnoreCaseAndInvestigationStep_Uuid(displayName = formDto.displayName, investigationStepUuid = investigationStepUuid).ifPresent { form ->
-                formDto.uuid?.let {
-                    require(form.uuid == it)
-                }
-            }
-        }
-
-
 
     }
 }

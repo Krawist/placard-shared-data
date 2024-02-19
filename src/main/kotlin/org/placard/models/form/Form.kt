@@ -4,6 +4,8 @@ import io.micronaut.core.annotation.Introspected
 import io.micronaut.serde.annotation.Serdeable
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.ManyToOne
 import org.placard.models.Auditable
 import org.placard.models.investigation.InvestigationStep
@@ -20,6 +22,10 @@ internal data class Form(
     val project: Project? = null,
 
     @ManyToOne
-    val investigationStep : InvestigationStep? = null
+    val investigationStep : InvestigationStep? = null,
+
+    @Column(name = "form_event_type")
+    @Enumerated(value = EnumType.STRING)
+    val eventType: FormEventType
 
 ) : Auditable()

@@ -13,4 +13,9 @@ internal interface InvestigationService {
 
     fun search() : HttpResponse<Page<Investigation>>
 
+    //TODO check investigation update
+    //TODO check investigation step update
+    //TODO check form update
+    //TODO check how forms can be linked
+
 }

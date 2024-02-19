@@ -9,6 +9,7 @@ import org.placard.models.investigation.InvestigationStep
 import org.placard.remote.InvestigationStepDto
 import org.placard.repositories.InvestigationRepository
 import org.placard.repositories.InvestigationStepRepository
+import org.placard.repositories.ProjectRepository
 import java.util.UUID
 
 @Singleton
@@ -19,9 +20,10 @@ internal class InvestigationStepServiceImpl(
 
     override fun create(investigationStepDto: InvestigationStepDto): HttpResponse<InvestigationStep> {
         validateFields(investigationStepDto = investigationStepDto)
+
         val investigationStep = InvestigationStep(
             displayName = investigationStepDto.displayName,
-            investigation = Investigation(displayName = "").also { it.uuid = investigationStepDto.investigationUuid }
+            investigation = investigationRepository.findById(investigationStepDto.investigationUuid).get()
         ).also {
             it.uuid = UUID.randomUUID()
         }
@@ -36,7 +38,7 @@ internal class InvestigationStepServiceImpl(
             IllegalArgumentException("Step with uuid ${investigationStepDto.uuid} not found")
         }.copy(
             displayName = investigationStepDto.displayName,
-            investigation = Investigation(displayName = "").also { it.uuid = investigationStepDto.investigationUuid }
+            investigation = investigationRepository.findById(investigationStepDto.investigationUuid).get()
         )
 
         return HttpResponse.ok(investigationStepRepository.update(investigationStep))
@@ -56,7 +58,7 @@ internal class InvestigationStepServiceImpl(
 
         investigationStepRepository.findByDisplayNameIgnoreCaseAndInvestigation_Uuid(
             displayName = investigationStepDto.displayName,
-            investigationUUID = investigationStepDto.uuid!!
+            investigationUUID = investigationStepDto.investigationUuid
         ).ifPresent { investigation ->
             investigation.uuid?.let {
                 require(it == investigationStepDto.uuid) { "A Step with this name already exist in this investigation" }

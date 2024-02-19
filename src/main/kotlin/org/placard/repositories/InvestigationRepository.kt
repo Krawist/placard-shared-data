@@ -9,6 +9,6 @@ import java.util.UUID
 @Repository
 internal interface InvestigationRepository : PageableRepository<Investigation, UUID> {
 
-    fun findByDisplayNameIgnoreCaseAAndProject_Uuid(displayName: String, projectUUID: UUID) : Optional<Investigation>
+    fun findByDisplayNameIgnoreCaseAndProject_Uuid(displayName: String, projectUUID: UUID) : Optional<Investigation>
 
 }

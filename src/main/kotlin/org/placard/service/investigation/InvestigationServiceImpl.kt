@@ -53,7 +53,7 @@ internal class InvestigationServiceImpl(
 
         require(projectRepository.existsById(investigationDto.projectUuid)) { "Project with uuid ${investigationDto.projectUuid} not found" }
 
-        investigationRepository.findByDisplayNameIgnoreCaseAAndProject_Uuid(
+        investigationRepository.findByDisplayNameIgnoreCaseAndProject_Uuid(
             displayName = investigationDto.displayName,
             projectUUID = investigationDto.projectUuid
         ).ifPresent { investigation ->
