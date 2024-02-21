@@ -10,6 +10,6 @@ import java.util.UUID
 internal data class DataToUpload(
     val displayName : String,
     val accessMode : SharableDataAccessMode,
-    val projectIdentifier: UUID,
+    val projectUuid: UUID,
     val uploadBy : UUID
 )

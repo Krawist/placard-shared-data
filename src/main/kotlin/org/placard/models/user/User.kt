@@ -4,11 +4,17 @@ import io.micronaut.core.annotation.Introspected
 import io.micronaut.serde.annotation.Serdeable
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import java.util.UUID
 
 @Introspected
 @Serdeable
 @Entity(name = "accounts")
 internal data class User(
+
+    @Id
+    override val uuid: UUID,
+
     @Column(name = "first_name")
     val firstName: String = "",
 
@@ -20,4 +26,4 @@ internal data class User(
 
     @Column(name = "email_address")
     val emailAddress: String = "",
-) : AbstractUser()
+) : AbstractUser(uuid = uuid)

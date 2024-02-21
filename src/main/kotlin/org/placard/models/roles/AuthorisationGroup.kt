@@ -5,14 +5,14 @@ import io.micronaut.serde.annotation.Serdeable
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import java.util.UUID
 
 @Introspected
 @Serdeable
 @Entity(name = "authorization_groups")
 data class AuthorisationGroup(
-
     @Id
-    val identifier : String,
+    val uuid : UUID,
 
     @Column(name = "name")
     val displayName : String

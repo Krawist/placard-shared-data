@@ -9,5 +9,5 @@ import java.util.UUID
 internal data class AccreditationCreationRequest(
     val level: Int,
     val items: List<AccreditationItemCreationRequest>,
-    val projectIdentifier: UUID? = null,
+    val projectUuid: UUID? = null,
 )

@@ -21,9 +21,11 @@ internal class InvestigationServiceImpl(
 
         val project = projectRepository.findById(investigationDto.projectUuid).get()
 
-        val investigation = Investigation(displayName = investigationDto.displayName, project = project).also {
-            it.uuid = UUID.randomUUID()
-        }
+        val investigation = Investigation(
+            uuid = UUID.randomUUID(),
+            displayName = investigationDto.displayName,
+            projectUuid = project.uuid
+        )
 
         investigationRepository.save(investigation)
 
@@ -37,7 +39,7 @@ internal class InvestigationServiceImpl(
 
         val investigation = investigationRepository.findById(investigationDto.uuid).orElseThrow {
             IllegalArgumentException("Investigation with uuid ${investigationDto.uuid} not found")
-        }.copy(displayName = investigationDto.displayName, project = project)
+        }.copy(displayName = investigationDto.displayName, projectUuid = project.uuid)
 
         investigationRepository.update(investigation)
 
@@ -53,9 +55,9 @@ internal class InvestigationServiceImpl(
 
         require(projectRepository.existsById(investigationDto.projectUuid)) { "Project with uuid ${investigationDto.projectUuid} not found" }
 
-        investigationRepository.findByDisplayNameIgnoreCaseAndProject_Uuid(
+        investigationRepository.findByDisplayNameIgnoreCaseAndProjectUuid(
             displayName = investigationDto.displayName,
-            projectUUID = investigationDto.projectUuid
+            projectUuid = investigationDto.projectUuid
         ).ifPresent { investigation ->
             investigation.uuid?.let {
                 require(it == investigationDto.uuid)

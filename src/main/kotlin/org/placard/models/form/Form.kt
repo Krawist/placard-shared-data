@@ -6,23 +6,30 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.Id
 import org.placard.models.Auditable
-import org.placard.models.investigation.InvestigationStep
-import org.placard.models.project.Project
+import java.util.UUID
 
 @Introspected
 @Serdeable
 @Entity(name = "forms")
 internal data class Form(
+
+    @Id
+    val uuid: UUID,
+
     @Column(name = "form_name")
     val displayName: String,
 
-    @ManyToOne
-    val project: Project? = null,
+    @Column(name = "investigation_uuid")
+    val investigationUuid: UUID? = null,
 
-    @ManyToOne
-    val investigationStep : InvestigationStep? = null,
+    @Column(name = "investigation_step_uuid")
+    val investigationStepUuid : UUID? = null,
+
+    @Column(name = "form_status")
+    @Enumerated(EnumType.STRING)
+    val formStatus: FormStatus,
 
     @Column(name = "form_event_type")
     @Enumerated(value = EnumType.STRING)

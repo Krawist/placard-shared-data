@@ -30,12 +30,11 @@ internal class ProjectServiceImpl(
         }
 
         val project = Project(
+            uuid = UUID.randomUUID(),
             displayName = projectCreationRequest.name,
-            parentProject = parent,
-            hierarchy = hierarchy
-        ).also{
-            it.uuid = UUID.randomUUID()
-        }
+            parentProjectUuid = parent?.uuid,
+            hierarchyUuid = hierarchy.uuid
+        )
 
         projectRepository.save(project)
 

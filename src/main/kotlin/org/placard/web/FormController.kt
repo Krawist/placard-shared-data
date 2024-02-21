@@ -8,6 +8,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Patch
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
 import org.placard.models.form.Form
 import org.placard.models.investigation.Investigation
 import org.placard.remote.FormDto
@@ -24,7 +25,7 @@ internal class FormController(
         return formService.create(formDto = formDto)
     }
 
-    @Patch("/{formUuid}")
+    @Put("/{formUuid}")
     fun update(
         @PathVariable("formUuid") formUuid: UUID,
         @Body formDto: FormDto,

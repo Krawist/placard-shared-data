@@ -17,12 +17,11 @@ internal class UserServiceImpl(
     override fun create(userCreationRequest: UserCreationRequest): HttpResponse<User> {
         //TODO make this method optimal by handling unity of email address
         val user = User(
+            uuid = UUID.randomUUID(),
             firstName = userCreationRequest.firstName,
             lastName = userCreationRequest.lastName,
             emailAddress = userCreationRequest.emailAddress
-        ).also {
-            it.uuid = UUID.randomUUID()
-        }
+        )
 
         userRepository.save(user)
 

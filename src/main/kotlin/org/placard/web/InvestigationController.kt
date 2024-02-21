@@ -8,6 +8,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Patch
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
 import org.placard.models.investigation.Investigation
 import org.placard.remote.InvestigationDto
 import org.placard.service.investigation.InvestigationService
@@ -23,7 +24,7 @@ internal class InvestigationController(
         return investigationService.create(investigationDto = investigationDto)
     }
 
-    @Patch("/{investigationUuid}")
+    @Put("/{investigationUuid}")
     fun update(
         @PathVariable("investigationUuid") investigationUuid: UUID,
         @Body investigationDto: InvestigationDto,

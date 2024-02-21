@@ -7,7 +7,6 @@ import org.placard.models.access.AccreditationItem
 import org.placard.models.access.AccreditationStatus
 import org.placard.remote.AccreditationCreationRequest
 import org.placard.remote.AccreditationItemCreationRequest
-import org.placard.repositories.AbstractUserRepository
 import org.placard.repositories.AccreditationItemRepository
 import org.placard.repositories.AccreditationRepository
 import org.placard.repositories.HierarchyItemRepository
@@ -21,7 +20,6 @@ internal class AccreditationServiceImpl(
     private val accreditationItemRepository: AccreditationItemRepository,
     private val projectRepository: ProjectRepository,
     private val hierarchyItemRepository: HierarchyItemRepository,
-    private val abstractUserRepository: AbstractUserRepository,
     private val sharableDataRepository: SharableDataRepository
 ) : AccreditationService {
     override fun addAccreditationsToUser(abstractUserUuid : UUID, accreditations: List<AccreditationCreationRequest>) : HttpResponse<List<Accreditation>>{
@@ -31,21 +29,21 @@ internal class AccreditationServiceImpl(
 
             checkAccreditationItems(accreditationCreationRequest = accreditationCreationRequest, accreditationItemsCreationRequest = accreditationCreationRequest.items)
 
-            val abstractUser = abstractUserRepository.findById(abstractUserUuid).orElseThrow {
-                IllegalArgumentException("Provide user/user group with id '$abstractUserUuid' don't exist")
-            }
-            val project = projectRepository.findById(accreditationCreationRequest.projectIdentifier).orElseThrow {
-                IllegalArgumentException("Project with id '${accreditationCreationRequest.projectIdentifier}' not found")
+/*            require(abstractUserRepository.existsById(abstractUserUuid)){
+                "Provide user/user group with id '$abstractUserUuid' don't exist"
+            }*/
+
+            require(projectRepository.existsById(accreditationCreationRequest.projectUuid)){
+                "Project with id '${accreditationCreationRequest.projectUuid}' not found"
             }
 
             val accreditation = Accreditation(
+                uuid = UUID.randomUUID(),
                 level = accreditationCreationRequest.level,
-                project = project,
-                abstractUser = abstractUser,
+                projectUuid = accreditationCreationRequest.projectUuid,
+                abstractUserUuid = abstractUserUuid,
                 accreditationStatus = AccreditationStatus.ACTIVE,
-            ).also {
-                it.uuid = UUID.randomUUID()
-            }
+            )
 
 
             accreditationRepository.save(accreditation)
@@ -68,17 +66,16 @@ internal class AccreditationServiceImpl(
 
             checkAccreditationItems(accreditationCreationRequest = accreditationCreationRequest, accreditationItemsCreationRequest = accreditationCreationRequest.items)
 
-            val sharableData = sharableDataRepository.findById(sharableDataUuid).orElseThrow {
-                IllegalArgumentException("Provide sharable data with id '$sharableDataUuid' not found")
+            require(sharableDataRepository.existsById(sharableDataUuid)){
+                "Provide sharable data with id '$sharableDataUuid' not found"
             }
 
             val accreditation = Accreditation(
+                uuid = UUID.randomUUID(),
                 level = accreditationCreationRequest.level,
-                sharableData = sharableData,
+                sharableDataUuid = sharableDataUuid,
                 accreditationStatus = AccreditationStatus.ACTIVE
-            ).also {
-                it.uuid = UUID.randomUUID()
-            }
+            )
             accreditationRepository.save(accreditation)
 
             saveAccreditationItems(
@@ -107,8 +104,8 @@ internal class AccreditationServiceImpl(
             val hierarchyItem = hierarchyItemRepository.findById(accreditationItemCreationRequest.accreditedItem).get()
             AccreditationItem(
                 uuid = UUID.randomUUID(),
-                hierarchyItem = hierarchyItem,
-                accreditation = accreditation,
+                hierarchyItemUuid = hierarchyItem.uuid,
+                accreditationUuid = accreditation.uuid,
                 typeOfAccess = accreditationItemCreationRequest.typeOfAccess
             )
         }

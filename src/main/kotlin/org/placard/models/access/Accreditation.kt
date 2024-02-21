@@ -6,33 +6,36 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.Id
 import org.placard.models.Auditable
 import org.placard.models.data.SharableData
-import org.placard.models.project.Project
-import org.placard.models.user.AbstractUser
 import java.time.Instant
+import java.util.UUID
 
 @Introspected
 @Serdeable
 @Entity(name = "accreditations")
 internal data class Accreditation(
 
+    @Id
+    val uuid: UUID,
+
     @Column(name = "level")
     val level: Int,
 
-    @ManyToOne
-    val project: Project? = null,
+    @Column(name = "project_uuid")
+    val projectUuid: UUID? = null,
 
-    @ManyToOne
-    val abstractUser: AbstractUser? = null,
+    @Column(name = "abstract_user_uuid")
+    val abstractUserUuid: UUID? = null,
 
-    @ManyToOne
-    val sharableData: SharableData? = null,
+    @Column(name = "sharable_data_uuid")
+    val sharableDataUuid: UUID? = null,
 
     @Enumerated(value = EnumType.STRING)
     val accreditationStatus: AccreditationStatus = AccreditationStatus.ACTIVE,
 
+    @Column(name = "deactivation_date")
     val deactivationDate : Instant? = null
 
 ) : Auditable()

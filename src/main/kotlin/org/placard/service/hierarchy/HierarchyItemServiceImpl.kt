@@ -31,13 +31,12 @@ internal class HierarchyItemServiceImpl(
         }
 
         val hierarchyItem = HierarchyItem(
+            uuid = UUID.randomUUID(),
             level = hierarchyItemCreationRequest.level,
             displayName = hierarchyItemCreationRequest.displayName,
-            hierarchy = hierarchy,
-            parent = parent
-        ).also {
-            it.uuid = UUID.randomUUID()
-        }
+            hierarchyUuid = hierarchy.uuid,
+            parentUuid = parent?.uuid
+        )
 
         hierarchyItemRepository.save(hierarchyItem)
 

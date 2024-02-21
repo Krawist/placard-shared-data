@@ -1,13 +1,8 @@
 package org.placard.repositories
 
-import io.micronaut.data.annotation.Query
-import io.micronaut.data.annotation.Repository
-import io.micronaut.data.model.Page
-import io.micronaut.data.model.Pageable
 import io.micronaut.data.mongodb.annotation.MongoRepository
 import io.micronaut.data.repository.PageableRepository
 import org.placard.models.data.SharableData
-import org.placard.models.hierarchy.HierarchyItem
 import java.util.UUID
 
 @MongoRepository
@@ -19,6 +14,6 @@ internal interface SharableDataRepository : PageableRepository<SharableData, UUI
             "data = accrediation.sharableData " +
             "and accrediation = accreditationItem.accreditation " +
             "and accreditationItem.hierarchyItem in :accreditationItems")
-    fun getSharableDataByUserAccreditationLevelsAndItems(accreditationsLevels : List<Int>, accreditationItems : List<HierarchyItem>) : List<SharableData>*/
+    fun getSharableDataByUserAccreditationLevelsAndItems(accreditationsLevels : List<Int>, accreditationItemsUuid : List<UUID>) : List<SharableData>*/
 
 }

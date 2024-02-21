@@ -1,6 +1,7 @@
 package org.placard.models.user
 
 import io.micronaut.data.annotation.DateCreated
+import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
@@ -25,11 +26,11 @@ internal data class UserGroupMemberShip(
     @DateCreated
     val lastUpdateAt: Instant? = null,
 
-    @ManyToOne
-    val lastUpdatedBy: User? = null,
+    @Column(name = "last_update_by")
+    val lastUpdatedBy: UUID? = null,
 
-    @ManyToOne
-    val addedBy: User? = null,
+    @Column(name = "added_by")
+    val addedBy: UUID? = null,
 )
 
 @Embeddable

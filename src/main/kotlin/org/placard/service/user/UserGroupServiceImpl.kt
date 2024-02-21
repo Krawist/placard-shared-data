@@ -18,19 +18,20 @@ import java.util.UUID
 internal class UserGroupServiceImpl(
     private val userGroupRepository: UserGroupRepository,
     private val userGroupMemberShipRepository: UserGroupMemberShipRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) : UserGroupService {
 
     override fun create(userGroupCreationRequest: UserGroupCreationRequest): HttpResponse<UserGroup> {
-        require(userGroupCreationRequest.displayName.isNotBlank()) {"The group name cannot be blank"}
+        require(userGroupCreationRequest.displayName.isNotBlank()) { "The group name cannot be blank" }
 
-        val userGroup = UserGroup(displayName = userGroupCreationRequest.displayName).also {
-            it.uuid = UUID.randomUUID()
-        }
+        val userGroup = UserGroup(
+            uuid = UUID.randomUUID(),
+            displayName = userGroupCreationRequest.displayName
+        )
 
         userGroupRepository.save(userGroup)
 
-        if(userGroupCreationRequest.users.isNotEmpty()){
+        if (userGroupCreationRequest.users.isNotEmpty()) {
             addUsers(usersUuid = userGroupCreationRequest.users, userGroupUuid = userGroup.uuid!!)
         }
 
@@ -69,7 +70,7 @@ internal class UserGroupServiceImpl(
         return HttpResponse.ok()
     }
 
-    private fun buildUserGroupMemberShip(usersUuid: List<UUID>, userGroupUuid: UUID) : List<UserGroupMemberShip>{
+    private fun buildUserGroupMemberShip(usersUuid: List<UUID>, userGroupUuid: UUID): List<UserGroupMemberShip> {
         val userGroup = userGroupRepository.findById(userGroupUuid).orElseThrow {
             IllegalArgumentException("Invalid group provided. Group with id $userGroupUuid not found.")
         }

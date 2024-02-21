@@ -4,7 +4,6 @@ import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.http.HttpResponse
 import jakarta.inject.Singleton
-import org.placard.models.investigation.Investigation
 import org.placard.models.investigation.InvestigationStep
 import org.placard.remote.InvestigationStepDto
 import org.placard.repositories.InvestigationRepository
@@ -21,11 +20,10 @@ internal class InvestigationStepServiceImpl(
         validateFields(investigationStepDto = investigationStepDto)
 
         val investigationStep = InvestigationStep(
+            uuid = UUID.randomUUID(),
             displayName = investigationStepDto.displayName,
-            investigation = investigationRepository.findById(investigationStepDto.investigationUuid).get()
-        ).also {
-            it.uuid = UUID.randomUUID()
-        }
+            investigationUuid = investigation.uuid
+        )
 
         return HttpResponse.created(investigationStepRepository.save(investigationStep))
     }
@@ -37,7 +35,7 @@ internal class InvestigationStepServiceImpl(
             IllegalArgumentException("Step with uuid ${investigationStepDto.uuid} not found")
         }.copy(
             displayName = investigationStepDto.displayName,
-            investigation = investigationRepository.findById(investigationStepDto.investigationUuid).get()
+            investigationUuid = investigation.uuid
         )
 
         return HttpResponse.ok(investigationStepRepository.update(investigationStep))
@@ -55,13 +53,11 @@ internal class InvestigationStepServiceImpl(
             "Investigation with uuid ${investigationStepDto.investigationUuid} not found"
         }
 
-        investigationStepRepository.findByDisplayNameIgnoreCaseAndInvestigation_Uuid(
+        investigationStepRepository.findByDisplayNameIgnoreCaseAndInvestigationUuid(
             displayName = investigationStepDto.displayName,
-            investigationUUID = investigationStepDto.investigationUuid
-        ).ifPresent { investigation ->
-            investigation.uuid?.let {
-                require(it == investigationStepDto.uuid) { "A Step with this name already exist in this investigation" }
-            }
+            investigationUuid = investigationStepDto.investigationUuid
+        ).ifPresent { investigationStep ->
+            require(investigationStep.uuid == investigationStepDto.uuid) { "A Step with this name already exist in this investigation" }
         }
 
     }

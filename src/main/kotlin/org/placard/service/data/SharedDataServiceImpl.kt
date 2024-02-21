@@ -35,22 +35,22 @@ internal class SharedDataServiceImpl(
 
         require(dataToUpload.displayName.isNotBlank()) { "display name cannot be blank" }
 
-        val creator = userRepository.findById(dataToUpload.uploadBy).orElseThrow {
-            IllegalArgumentException("Provided creator don't exist")
+        require(userRepository.existsById(dataToUpload.uploadBy)) {
+            "Provided creator don't exist"
         }
 
-        val project = projectRepository.findById(dataToUpload.projectIdentifier).orElseThrow {
-            IllegalArgumentException("Provided project don't exist")
+        require(projectRepository.existsById(dataToUpload.projectUuid) ){
+            "Provided project don't exist"
         }
 
         val shareData = SharableData(
+            uuid = UUID.randomUUID(),
             fileSystemPath = "To be proceed",
             displayName = dataToUpload.displayName,
             accessMode = dataToUpload.accessMode,
-            project = project
+            projectUuid = dataToUpload.projectUuid
         ).also {
-            it.uuid = UUID.randomUUID()
-            it.createdBy = creator
+            it.createdBy = dataToUpload.uploadBy
         }
 
         sharableDataRepository.save(shareData)
@@ -60,8 +60,8 @@ internal class SharedDataServiceImpl(
 
     override fun search(searchQueryDescription: SearchQueryDescription): HttpResponse<List<SharableData>> {
         val requesterAccreditations = getUserAccreditations(UUID.fromString(searchQueryDescription.requesterUuid))
-        val accreditationItems = getAccreditationsHierarchyItems(requesterAccreditations)
-        val accreditationsLabels = accreditationItems.map { it.level }.distinct()
+        //val accreditationItems = getAccreditationsHierarchyItems(requesterAccreditations)
+        //val accreditationsLabels = accreditationItems.map { it.level }.distinct()
 
         return HttpResponse.ok(sharableDataRepository.findAll())
 
@@ -85,26 +85,26 @@ internal class SharedDataServiceImpl(
             userGroupRepository.findById(it.userGroupMemberShipKey.userGroupUuid).orElse(null)
         }
 
-        return accreditationRepository.findByAbstractUserInList(userGroups.toMutableList().plus(user))
+        return accreditationRepository.findByAbstractUserUuidInList(userGroups.toMutableList().plus(user).map { it.uuid })
     }
 
-    private fun getAccreditationsHierarchyItems(accreditations: List<Accreditation>): List<HierarchyItem> {
-        val hierarchyItems = mutableListOf<HierarchyItem>()
-        accreditationItemRepository.findByAccreditationInList(accreditations).forEach {
+    private fun getAccreditationsHierarchyItems(accreditations: List<UUID>): List<UUID> {
+        val hierarchyItems = mutableListOf<UUID>()
+        accreditationItemRepository.findByAccreditationUuidInList(accreditations).forEach {
             if(it.typeOfAccess == AccreditationItemTypeOfAccess.ALL_DESCENDANT_OF_LEVEL){
-                hierarchyItems.addAll(getHierarchyItemChild(it.hierarchyItem))
+                hierarchyItems.addAll(getHierarchyItemChild(it.hierarchyItemUuid))
             } else {
-                hierarchyItems.add(it.hierarchyItem)
+                hierarchyItems.add(it.hierarchyItemUuid)
             }
         }
         return hierarchyItems
     }
 
-    private fun getHierarchyItemChild(hierarchyItem: HierarchyItem): List<HierarchyItem> {
-        val children = mutableListOf<HierarchyItem>()
-        val waves = hierarchyItemRepository.findByParent(hierarchyItem)
+    private fun getHierarchyItemChild(hierarchyItem: UUID): List<UUID> {
+        val children = mutableListOf<UUID>()
+        val waves = hierarchyItemRepository.findByParentUuid(hierarchyItem)
         if (waves.isNotEmpty()) {
-            children.addAll(waves.map { getHierarchyItemChild(it) }.flatten().distinct())
+            children.addAll(waves.map { getHierarchyItemChild(it.uuid) }.flatten().distinct())
         }
         children.add(hierarchyItem)
         return children

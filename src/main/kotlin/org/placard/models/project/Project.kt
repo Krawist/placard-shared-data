@@ -5,21 +5,23 @@ import io.micronaut.serde.annotation.Serdeable
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
 import org.placard.models.Auditable
-import org.placard.models.hierarchy.Hierarchy
 import java.util.UUID
 
 @Introspected
 @Serdeable
 @Entity(name = "projects")
 internal data class Project(
+
+    @Id
+    val uuid: UUID,
+
     @Column(name = "name")
     val displayName : String,
 
-    @ManyToOne
-    val hierarchy: Hierarchy,
+    @Column(name = "hierarchy_uuid")
+    val hierarchyUuid: UUID,
 
-    @ManyToOne
-    val parentProject : Project? = null
+    @Column(name = "parent_project_uuid")
+    val parentProjectUuid : UUID? = null
 ) : Auditable()

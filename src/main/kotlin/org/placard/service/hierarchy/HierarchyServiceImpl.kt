@@ -17,10 +17,9 @@ internal class HierarchyServiceImpl(
 
     override fun create(hierarchyCreationRequest: HierarchyCreationRequest): HttpResponse<Hierarchy> {
         val hierarchy = Hierarchy(
+            uuid = UUID.randomUUID(),
             displayName = hierarchyCreationRequest.name
-        ).also {
-            it.uuid = UUID.randomUUID()
-        }
+        )
         hierarchyRepository.save(hierarchy)
 
         return HttpResponse.created(hierarchy)
