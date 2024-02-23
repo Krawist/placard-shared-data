@@ -62,35 +62,37 @@ internal class FormServiceImpl(
 
         require(formDto.displayName.isNotBlank()) { "Form name cannot be blank" }
 
-        when(formDto.eventType){
+        when (formDto.eventType) {
 
             FormEventType.CAPTURE_EVENT -> {
-                requireNotNull(formDto.projectUuid) {"For one-time event the project uuid is required"}
+                requireNotNull(formDto.investigationUuid) { "For one-time event the investigation uuid is required" }
 
-        formDto.projectUuid?.let { projectUuid ->
-            require(projectRepository.existsById(projectUuid)) {"Project with uuid $projectUuid not found"}
+                require(formDto.investigationStepUuid == null) {"For tracking event, Investigation step should not be provided"}
 
-            formRepository.findByDisplayNameIgnoreCaseAndProject_Uuid(displayName = formDto.displayName, projectUUID = projectUuid).ifPresent { form ->
-                formDto.uuid?.let {
-                    require(form.uuid == it)
+                formDto.investigationUuid.let { investigationUuid ->
+                    require(investigationRepository.existsById(investigationUuid)) { "Investigation with uuid $investigationUuid not found" }
+
+                    formRepository.findByDisplayNameIgnoreCaseAndInvestigationUuid(
+                        displayName = formDto.displayName,
+                        investigationUuid = investigationUuid
+                    ).ifPresent { form ->
+                        require(form.uuid == formDto.uuid) {"A form with the name ${formDto.displayName} already exist in this investigation"}
+                    }
                 }
             }
-        }
 
             FormEventType.TRACKING_EVENT -> {
-                requireNotNull(formDto.investigationStepUuid) {"For tracking event, the investigation step uuid is required"}
+                requireNotNull(formDto.investigationStepUuid) { "For tracking event, the investigation step uuid is required" }
 
-                require(formDto.projectUuid == null) {"For tracking event the project should not be provided"}
+                require(formDto.investigationUuid == null) { "For tracking event the project should not be provided" }
 
                 require(investigationStepRepository.existsById(formDto.investigationStepUuid)) { "Step with uuid ${formDto.investigationStepUuid} not found" }
 
-                formRepository.findByDisplayNameIgnoreCaseAndInvestigationStep_Uuid(
+                formRepository.findByDisplayNameIgnoreCaseAndInvestigationStepUuid(
                     displayName = formDto.displayName,
                     investigationStepUuid = formDto.investigationStepUuid
                 ).ifPresent { form ->
-                    formDto.uuid?.let {
-                        require(form.uuid == it)
-                    }
+                    require(form.uuid == formDto.uuid) {"A form with the name ${formDto.displayName} already exist in this investigation step"}
                 }
             }
         }

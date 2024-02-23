@@ -22,7 +22,7 @@ internal class InvestigationStepServiceImpl(
         val investigationStep = InvestigationStep(
             uuid = UUID.randomUUID(),
             displayName = investigationStepDto.displayName,
-            investigationUuid = investigation.uuid
+            investigationUuid = investigationStepDto.investigationUuid
         )
 
         return HttpResponse.created(investigationStepRepository.save(investigationStep))
@@ -35,7 +35,7 @@ internal class InvestigationStepServiceImpl(
             IllegalArgumentException("Step with uuid ${investigationStepDto.uuid} not found")
         }.copy(
             displayName = investigationStepDto.displayName,
-            investigationUuid = investigation.uuid
+            investigationUuid = investigationStepDto.investigationUuid
         )
 
         return HttpResponse.ok(investigationStepRepository.update(investigationStep))

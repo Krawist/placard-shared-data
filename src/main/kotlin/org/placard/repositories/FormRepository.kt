@@ -9,7 +9,7 @@ import java.util.UUID
 @MongoRepository
 internal interface FormRepository : PageableRepository<Form, UUID> {
 
-    fun findByDisplayNameIgnoreCaseAndProjectUuid(displayName : String, projectUuid: UUID) : Optional<Form>
+    fun findByDisplayNameIgnoreCaseAndInvestigationUuid(displayName : String, investigationUuid: UUID) : Optional<Form>
     fun findByDisplayNameIgnoreCaseAndInvestigationStepUuid(displayName : String, investigationStepUuid: UUID) : Optional<Form>
 
 }
