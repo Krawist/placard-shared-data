@@ -7,6 +7,7 @@ import org.placard.models.access.AccreditationItem
 import org.placard.models.access.AccreditationStatus
 import org.placard.remote.AccreditationCreationRequest
 import org.placard.remote.AccreditationItemCreationRequest
+import org.placard.repositories.AbstractUserRepository
 import org.placard.repositories.AccreditationItemRepository
 import org.placard.repositories.AccreditationRepository
 import org.placard.repositories.HierarchyItemRepository
@@ -20,7 +21,8 @@ internal class AccreditationServiceImpl(
     private val accreditationItemRepository: AccreditationItemRepository,
     private val projectRepository: ProjectRepository,
     private val hierarchyItemRepository: HierarchyItemRepository,
-    private val sharableDataRepository: SharableDataRepository
+    private val sharableDataRepository: SharableDataRepository,
+    private val abstractUserRepository: AbstractUserRepository
 ) : AccreditationService {
     override fun addAccreditationsToUser(abstractUserUuid : UUID, accreditations: List<AccreditationCreationRequest>) : HttpResponse<List<Accreditation>>{
 
@@ -29,9 +31,11 @@ internal class AccreditationServiceImpl(
 
             checkAccreditationItems(accreditationCreationRequest = accreditationCreationRequest, accreditationItemsCreationRequest = accreditationCreationRequest.items)
 
-/*            require(abstractUserRepository.existsById(abstractUserUuid)){
+            require(abstractUserRepository.existsById(abstractUserUuid)){
                 "Provide user/user group with id '$abstractUserUuid' don't exist"
-            }*/
+            }
+
+            require(accreditationCreationRequest.projectUuid != null) {"Please provide the project uuid"}
 
             require(projectRepository.existsById(accreditationCreationRequest.projectUuid)){
                 "Project with id '${accreditationCreationRequest.projectUuid}' not found"
@@ -120,7 +124,7 @@ internal class AccreditationServiceImpl(
             hierarchyItemRepository.findById(it.accreditedItem).orElseThrow {
                 IllegalArgumentException("Hierarchy item with id '${it.accreditedItem}' not found")
             }.let { hierarchyItem ->
-                require(hierarchyItem.level != accreditationCreationRequest.level) {
+                require(hierarchyItem.level == accreditationCreationRequest.level) {
                     "Hierarchy item ${hierarchyItem.uuid} is not of level ${accreditationCreationRequest.level}"
                 }
             }

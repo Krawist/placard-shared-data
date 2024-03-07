@@ -29,7 +29,6 @@ dependencies {
     implementation("io.micronaut.serde:micronaut-serde-bson")
     runtimeOnly("org.mongodb:mongodb-driver-sync")
 
-
     // Kotlin Symbol Processing (KSP) Dependencies
     ksp("io.micronaut.data:micronaut-data-processor") // Micronaut Data Processor for Kotlin Symbol Processing
     ksp("io.micronaut:micronaut-http-validation") // Micronaut HTTP Validation processor for Kotlin Symbol Processing
